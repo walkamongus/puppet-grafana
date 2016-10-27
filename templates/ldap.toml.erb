@@ -1,0 +1,53 @@
+<% unless @verbose_logging.nil? -%>
+verbose_logging = <%= @verbose_logging ? 'true' : 'false' %>
+
+<% end -%>
+[[servers]]
+host = "<%= @hosts.join(' ') %>"
+port = <%= @port %>
+<% unless @use_ssl.nil? -%>
+use_ssl = <%= @use_ssl ? 'true' : 'false' %>
+<% end -%>
+<% unless @start_tls.nil? -%>
+start_tls = <%= @start_tls ? 'true' : 'false' %>
+<% end -%>
+<% unless @ssl_skip_verify.nil? -%>
+ssl_skip_verify = <%= @ssl_skip_verify ? 'true' : 'false' %>
+<% end -%>
+<% if @root_ca_cert -%>
+root_ca_cert = <%= @root_ca_cert %>
+<% end -%>
+
+bind_dn = "<%= @bind_dn %>"
+<% if @bind_password -%>
+bind_password = "<%= @bind_password %>"
+<% end -%>
+
+search_filter = "<%= @search_filter %>"
+search_base_dns = ["<%= @search_base_dns.join('", "') %>"]
+
+<% if @group_search_filter -%>
+group_search_filter = "<%= @group_search_filter %>"
+<% end -%>
+<% if @group_search_filter_user_attribute -%>
+group_search_filter_user_attribute = "<%= @group_search_filter_user_attribute %>"
+<% end -%>
+<% if @group_search_base_dns -%>
+group_search_base_dns = ["<%= @group_search_base_dns.join('", "') %>"]
+<% end -%>
+
+[servers.attributes]
+<% ['name', 'surname', 'username', 'member_of', 'email'].each do |x| -%>
+<%= x %> = "<%= @attributes[x] %>"
+<% end -%>
+<% if @group_mappings -%>
+<%   @group_mappings.each do |m| -%>
+
+[[servers.group_mappings]]
+group_dn = "<%= m['group_dn'] %>"
+org_role = "<%= m['org_role'] %>"
+<%     if m.include?('org_id') -%>
+org_id = <%= m['org_id'] %>
+<%     end -%>
+<%   end -%>
+<% end -%>

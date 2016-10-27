@@ -1,0 +1,68 @@
+{
+  "name": "bodgit-grafana",
+  "version": "1.0.0",
+  "author": "bodgit",
+  "summary": "Puppet Module for managing Grafana",
+  "license": "Apache-2.0",
+  "source": "https://github.com/bodgit/puppet-grafana",
+  "project_page": "https://github.com/bodgit/puppet-grafana",
+  "issues_url": "https://github.com/bodgit/puppet-grafana/issues",
+  "operatingsystem_support": [
+    {
+      "operatingsystem": "RedHat",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "CentOS",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "OracleLinux",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    },
+    {
+      "operatingsystem": "Scientific",
+      "operatingsystemrelease": [
+        "6",
+        "7"
+      ]
+    }
+  ],
+  "requirements": [
+    {
+      "name": "puppet",
+      "version_requirement": ">=3.0.0 <5.0.0"
+    },
+    {
+      "name": "pe",
+      "version_requirement": ">=3.7.0 <2015.4.0"
+    }
+  ],
+  "tags": [
+    "graphite",
+    "grafana"
+  ],
+  "dependencies": [
+    {
+      "name": "puppetlabs/stdlib",
+      "version_requirement": ">=4.6.0 <5.0.0"
+    },
+    {
+      "name": "puppetlabs/inifile",
+      "version_requirement": ">=1.6.0 <2.0.0"
+    },
+    {
+      "name": "bodgit/bodgitlib",
+      "version_requirement": ">=1.0.0 <2.0.0"
+    }
+  ]
+}

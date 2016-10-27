@@ -1,0 +1,2 @@
+Restart grafana after installing plugins . <service grafana-server restart>
+
