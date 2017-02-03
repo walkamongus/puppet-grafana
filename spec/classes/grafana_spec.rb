@@ -1,11 +1,10 @@
 require 'spec_helper'
 
 describe 'grafana' do
-
   let(:params) do
     {
       :admin_password => 'admin',
-      :secret_key     => 'abc123',
+      :secret_key     => 'abc123'
     }
   end
 
@@ -25,12 +24,10 @@ describe 'grafana' do
         facts
       end
 
-      it { should contain_anchor('grafana::begin') }
-      it { should contain_anchor('grafana::end') }
       it { should contain_class('grafana') }
-      it { should contain_class('grafana::config') }
-      it { should contain_class('grafana::install') }
       it { should contain_class('grafana::params') }
+      it { should contain_class('grafana::install').that_comes_before('Class[grafana::config]') }
+      it { should contain_class('grafana::config').that_notifies('Class[grafana::service]') }
       it { should contain_class('grafana::service') }
       it { should contain_file('/etc/grafana') }
       it { should contain_file('/etc/grafana/grafana.ini') }

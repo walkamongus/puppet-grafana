@@ -29,14 +29,8 @@ class grafana (
   validate_absolute_path($log_dir)
   validate_absolute_path($plugins_dir)
 
-  include ::grafana::install
-  include ::grafana::config
-  include ::grafana::service
+  class { '::grafana::install': }->
+  class { '::grafana::config': }~>
+  class { '::grafana::service': }
 
-  anchor { 'grafana::begin': }
-  anchor { 'grafana::end': }
-
-  Anchor['grafana::begin'] -> Class['::grafana::install']
-    ~> Class['::grafana::config'] ~> Class['::grafana::service']
-    -> Anchor['grafana::end']
 }
