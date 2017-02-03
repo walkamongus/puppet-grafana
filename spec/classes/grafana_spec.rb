@@ -52,10 +52,41 @@ describe 'grafana' do
       when 'RedHat'
         it { should contain_file('/etc/sysconfig/grafana-server') }
         it { should contain_yumrepo('grafana') }
+        it { should contain_yumrepo('grafana').without('proxy') }
+
+        context 'with proxy and no_proxy set' do
+          let(:params) do
+            super().merge(
+              :proxy    => 'http://example.org:8080',
+              :no_proxy => '127.0.0.1'
+            )
+          end
+
+          it { should contain_file('/etc/sysconfig/grafana-server').with_content(/export no_proxy=127.0.0.1/) }
+          it { should contain_file('/etc/sysconfig/grafana-server').with_content(%r{export http_proxy=http://example.org:8080}) }
+          it { should contain_file('/etc/sysconfig/grafana-server').with_content(%r{export https_proxy=http://example.org:8080}) }
+        end
+
+        context 'with proxy and repo managed' do
+          let(:params) do
+            super().merge(
+              :proxy       => 'http://example.org:8080',
+              :manage_repo => true
+            )
+          end
+
+          it { should contain_yumrepo('grafana').with_proxy('http://example.org:8080') }
+        end
       end
 
       context 'with a package name and version specified' do
-        let(:params) { super().merge(:package_name => 'grafana-server', :package_ensure => '4.1.1') }
+        let(:params) do
+          super().merge(
+            :package_name => 'grafana-server',
+            :package_ensure => '4.1.1'
+          )
+        end
+
         it do
           should contain_package('grafana').with(
             'name'   => 'grafana-server',

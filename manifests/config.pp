@@ -11,6 +11,8 @@ class grafana::config {
   $plugins_dir        = $::grafana::plugins_dir
   $restart_on_upgrade = $::grafana::restart_on_upgrade
   $user               = $::grafana::user
+  $proxy              = $::grafana::proxy
+  $no_proxy           = $::grafana::no_proxy
 
   group { $group:
     ensure => present,

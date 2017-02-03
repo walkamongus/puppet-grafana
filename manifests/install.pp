@@ -11,6 +11,7 @@ class grafana::install {
           gpgcheck      => true,
           gpgkey        => 'https://packagecloud.io/gpg.key https://grafanarel.s3.amazonaws.com/RPM-GPG-KEY-grafana',
           sslverify     => true,
+          proxy         => $::grafana::proxy,
           before        => Package['grafana'],
         }
       }

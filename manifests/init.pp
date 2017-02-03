@@ -5,6 +5,8 @@ class grafana (
   String            $admin_user         = $::grafana::params::admin_user,
   Optional[Boolean] $allow_sign_up      = undef,
   Optional[Boolean] $allow_org_create   = undef,
+  Optional[String]  $proxy              = undef,
+  Optional[String]  $no_proxy           = undef,
   Optional[Boolean] $check_for_updates  = $::grafana::params::check_for_updates,
   String            $conf_dir           = $::grafana::params::conf_dir,
   String            $conf_file          = $::grafana::params::conf_file,
