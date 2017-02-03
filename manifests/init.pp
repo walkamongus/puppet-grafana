@@ -15,6 +15,7 @@ class grafana (
   Boolean           $manage_repo        = $::grafana::params::manage_repo,
   Integer[0]        $max_open_files     = $::grafana::params::max_open_files,
   String            $package_name       = $::grafana::params::package_name,
+  String            $package_ensure     = $::grafana::params::package_ensure,
   String            $plugins_dir        = $::grafana::params::plugins_dir,
   Boolean           $restart_on_upgrade = $::grafana::params::restart_on_upgrade,
   String            $service_name       = $::grafana::params::service_name,

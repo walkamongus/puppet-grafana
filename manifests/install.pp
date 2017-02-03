@@ -11,16 +11,17 @@ class grafana::install {
           gpgcheck      => true,
           gpgkey        => 'https://packagecloud.io/gpg.key https://grafanarel.s3.amazonaws.com/RPM-GPG-KEY-grafana',
           sslverify     => true,
-          before        => Package[$::grafana::package_name],
+          before        => Package['grafana'],
         }
       }
       default: {
-        fail('')
+        fail("${::osfamily} osfamily not yet supported.")
       }
     }
   }
 
-  package { $::grafana::package_name:
-    ensure => present,
+  package { 'grafana':
+    ensure => $::grafana::package_ensure,
+    name   => $::grafana::package_name,
   }
 }

@@ -1,7 +1,8 @@
 #
 class grafana::params {
 
-  $admin_user = 'admin'
+  $admin_user     = 'admin'
+  $package_ensure = 'present'
 
   case $::osfamily {
     'RedHat': {

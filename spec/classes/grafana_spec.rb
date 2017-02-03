@@ -53,6 +53,16 @@ describe 'grafana' do
         it { should contain_file('/etc/sysconfig/grafana-server') }
         it { should contain_yumrepo('grafana') }
       end
+
+      context 'with a package name and version specified' do
+        let(:params) { super().merge(:package_name => 'grafana-server', :package_ensure => '4.1.1') }
+        it do
+          should contain_package('grafana').with(
+            'name'   => 'grafana-server',
+            'ensure' => '4.1.1'
+          )
+        end
+      end
     end
   end
 end
