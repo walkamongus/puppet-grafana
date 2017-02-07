@@ -1,4 +1,7 @@
 require 'puppet'
+require 'uri'
+require 'net/http'
+require 'pp'
 
 module Grafana
   # Class documentation goes here.
@@ -10,6 +13,32 @@ module Grafana
         YAML.load_file(path).each_with_object({}) { |(k, v), h| h[k.to_sym] = v }
       rescue
         raise Puppet::Error, "Could not parse Grafana REST configuration file '#{path}': #{e}"
+      end
+    end
+
+    def self.camelize(term, uppercase = false)
+      if uppercase
+        term.to_s.gsub(/\/(.?)/) { "::" + $1.upcase }.gsub(/(^|_)(.)/) { $2.upcase }
+      else
+        term[0] + camelize(term, uppercase = true)[1..-1]
+      end
+    end
+
+    def self.sym_to_bool(value)
+      case value
+      when true, 'true', :true then true
+      when false, 'false', :false then false
+      else
+        value
+      end
+    end
+
+    def self.bool_to_sym(value)
+      case value
+      when true, :true then :true
+      when false, :false then :false
+      else
+        value
       end
     end
 
@@ -29,7 +58,10 @@ module Grafana
           request = verb_map[method.to_sym].new(uri.request_uri)
           request.add_field('Content-Type', 'application/json')
           request.basic_auth config[:api_user], config[:api_password]
-          request.body = payload.to_json if payload
+          if payload
+            payload.each {|k, v| payload[k] = sym_to_bool(v); payload }
+            request.body = payload.to_json
+          end
           http.request(request)
         end
 
