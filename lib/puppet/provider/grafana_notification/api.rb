@@ -20,7 +20,7 @@ Puppet::Type.type(:grafana_notification).provide(:api, :parent => Grafana::Api) 
   end
 
   def update(new_value)
-    payload = Hash[@property_hash.map {|k, v| [camelize(k).to_sym, v] }]
+    payload = Hash[@property_hash.map { |k, v| [camelize(k).to_sym, v] }]
     payload.delete(:ensure)
     payload.merge!(new_value)
     request(:put, "api/alert-notifications/#{@property_hash[:id]}", payload)

@@ -1,7 +1,6 @@
 require 'puppet'
 require 'uri'
 require 'net/http'
-require 'pp'
 
 module Grafana
   # Class documentation goes here.
@@ -18,9 +17,9 @@ module Grafana
 
     def self.camelize(term, uppercase = false)
       if uppercase
-        term.to_s.gsub(/\/(.?)/) { "::" + $1.upcase }.gsub(/(^|_)(.)/) { $2.upcase }
+        term.to_s.gsub(%r{/(.?)}) { '::' + Regexp.last_match[1].upcase }.gsub(/(^|_)(.)/) { Regexp.last_match[2].upcase }
       else
-        term[0] + camelize(term, uppercase = true)[1..-1]
+        term[0] + camelize(term, true)[1..-1]
       end
     end
 
@@ -59,7 +58,10 @@ module Grafana
           request.add_field('Content-Type', 'application/json')
           request.basic_auth config[:api_user], config[:api_password]
           if payload
-            payload.each {|k, v| payload[k] = sym_to_bool(v); payload }
+            payload.each do |k, v|
+              payload[k] = sym_to_bool(v)
+              payload
+            end
             request.body = payload.to_json
           end
           http.request(request)

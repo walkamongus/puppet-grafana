@@ -17,7 +17,7 @@ Puppet::Type.type(:grafana_datasource).provide(:api, :parent => Grafana::Api) do
   end
 
   def update(new_value)
-    payload = Hash[@property_hash.map {|k, v| [camelize(k).to_sym, v] }]
+    payload = Hash[@property_hash.map { |k, v| [camelize(k).to_sym, v] }]
     payload.delete(:ensure)
     payload.merge!(new_value)
     request(:put, "api/datasources/#{@property_hash[:id]}", payload)
@@ -46,7 +46,7 @@ Puppet::Type.type(:grafana_datasource).provide(:api, :parent => Grafana::Api) do
         :with_credentials    => bool_to_sym(data['withCredentials']),
         :json_data           => data['jsonData'],
         :id                  => data['id'],
-        :org_id              => data['orgId'],
+        :org_id              => data['orgId']
       )
     end
   end
@@ -77,7 +77,7 @@ Puppet::Type.type(:grafana_datasource).provide(:api, :parent => Grafana::Api) do
       :basicAuthPassword => resource['basic_auth_password'],
       :basicAuthUser     => resource['basic_auth_user'],
       :withCredentials   => resource['with_credentials'],
-      :jsonData          => resource['json_data'],
+      :jsonData          => resource['json_data']
     }
     request(:post, 'api/datasources', payload)
     @property_hash[:ensure] = :present
