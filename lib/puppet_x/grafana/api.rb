@@ -63,7 +63,10 @@ module Grafana
               payload
             end
             request.body = payload.to_json
+            redacted_body = Hash[request.body.map { |k, v| [k, k =~ /pass/i ? '<REDACTED>' : v] }]
           end
+          Puppet.debug "Sending #{request.method} request to #{uri}"
+          Puppet.debug "=> Payload: #{redacted_body}" if redacted_body
           http.request(request)
         end
 
