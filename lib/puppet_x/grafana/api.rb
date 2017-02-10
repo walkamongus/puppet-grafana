@@ -15,18 +15,10 @@ module Grafana
       end
     end
 
-    def self.camelize(term, uppercase = false)
-      if uppercase
-        term.to_s.gsub(%r{/(.?)}) { '::' + Regexp.last_match[1].upcase }.gsub(/(^|_)(.)/) { Regexp.last_match[2].upcase }
-      else
-        term[0] + camelize(term, true)[1..-1]
-      end
-    end
-
-    def self.sym_to_bool(value)
+    def self.to_bool(value)
       case value
-      when true, 'true', :true then true
-      when false, 'false', :false then false
+      when 'true', :true then true
+      when 'false', :false then false
       else
         value
       end
@@ -34,11 +26,29 @@ module Grafana
 
     def self.bool_to_sym(value)
       case value
-      when true, :true then :true
-      when false, :false then :false
+      when true then :true
+      when false then :false
       else
         value
       end
+    end
+
+    def self.underscore(term)
+      term.gsub(/::/, '/').sub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
+          .gsub(/([a-z\d])([A-Z])/, '\1_\2')
+          .tr('-', '_')
+          .downcase
+    end
+
+    def self.get_properties(api_root, id)
+      properties = {}
+      response = request(:get, "#{api_root}/#{id}")
+      data     = JSON.parse(response.body)
+      data.each do |k, v|
+        properties[underscore(k).to_sym] = bool_to_sym(v)
+      end
+      properties[:ensure] = :present
+      properties
     end
 
     def self.request(method, path, payload = nil)
@@ -58,15 +68,11 @@ module Grafana
           request.add_field('Content-Type', 'application/json')
           request.basic_auth config[:api_user], config[:api_password]
           if payload
-            payload.each do |k, v|
-              payload[k] = sym_to_bool(v)
-              payload
-            end
-            request.body = payload.to_json
-            redacted_body = Hash[request.body.map { |k, v| [k, k =~ /pass/i ? '<REDACTED>' : v] }]
+            redacted_payload = Hash[payload.map { |k, v| [k, k =~ /pass/i ? '<REDACTED>' : v] }]
+            request.body     = payload.to_json
           end
           Puppet.debug "Sending #{request.method} request to #{uri}"
-          Puppet.debug "=> Payload: #{redacted_body}" if redacted_body
+          Puppet.debug "=> Payload: #{redacted_payload.to_json}" if redacted_payload
           http.request(request)
         end
 
@@ -78,6 +84,26 @@ module Grafana
       rescue Timeout::Error, Errno::EINVAL, Errno::ECONNRESET, EOFError,
              Net::HTTPBadResponse, Net::HTTPHeaderSyntaxError, Net::ProtocolError => e
         raise Puppet::Error, "[ERROR] Error while creating Grafana notification: #{e}"
+      end
+    end
+
+    def request(*args)
+      self.class.request(*args)
+    end
+
+    def create_payload(hash)
+      payload = Hash[hash.map { |k, v| [camelize(k).to_sym, self.class.to_bool(v)] }]
+      [:ensure, :provider, :secureJsonFields].each { |k| payload.delete(k) }
+      payload
+    end
+
+    def camelize(term, uppercase = false)
+      if uppercase
+        term.to_s
+            .gsub(%r{/(.?)}) { '::' + Regexp.last_match[1].upcase }
+            .gsub(/(^|_)(.)/) { Regexp.last_match[2].upcase }
+      else
+        term[0] + camelize(term, true)[1..-1]
       end
     end
   end

@@ -4,50 +4,20 @@ require 'json'
 Puppet::Type.type(:grafana_datasource).provide(:api, :parent => Grafana::Api) do
   mk_resource_methods
 
-  def request(*args)
-    self.class.request(*args)
+  def initialize(value = {})
+    super(value)
+    @needs_update = false
   end
 
-  def camelize(*args)
-    self.class.camelize(*args)
-  end
-
-  def bool_to_sym(*args)
-    self.class.bool_to_sym(*args)
-  end
-
-  def update(new_value)
-    payload = Hash[@property_hash.map { |k, v| [camelize(k).to_sym, v] }]
-    payload.delete(:ensure)
-    payload.merge!(new_value)
-    request(:put, "api/datasources/#{@property_hash[:id]}", payload)
+  def self.api_root
+    'api/datasources'
   end
 
   def self.instances
-    response = request(:get, 'api/datasources')
+    response = request(:get, api_root)
     ids      = JSON.parse(response.body).collect { |item| item['id'] }
-
     ids.collect do |id|
-      response = request(:get, "api/datasources/#{id}")
-      data     = JSON.parse(response.body)
-      new(
-        :ensure              => :present,
-        :name                => data['name'],
-        :type                => data['type'],
-        :is_default          => bool_to_sym(data['isDefault']),
-        :access              => data['access'],
-        :url                 => data['url'],
-        :user                => data['user'],
-        :password            => data['password'],
-        :database            => data['database'],
-        :basic_auth          => bool_to_sym(data['basicAuth']),
-        :basic_auth_password => data['basicAuthPassword'],
-        :basic_auth_user     => data['basicAuthUser'],
-        :with_credentials    => bool_to_sym(data['withCredentials']),
-        :json_data           => data['jsonData'],
-        :id                  => data['id'],
-        :org_id              => data['orgId']
-      )
+      new get_properties(api_root, id)
     end
   end
 
@@ -59,84 +29,88 @@ Puppet::Type.type(:grafana_datasource).provide(:api, :parent => Grafana::Api) do
     end
   end
 
+  def request(*args)
+    self.class.request(*args)
+  end
+
+  def api_root
+    self.class.api_root
+  end
+
+  def update
+    updated_values = @property_hash.merge(@resource.to_hash)
+    payload = create_payload(updated_values)
+    request(:put, "#{api_root}/#{@property_hash[:id]}", payload)
+  end
+
   def exists?
     @property_hash[:ensure] == :present
   end
 
   def create
-    payload = {
-      :name              => resource[:name],
-      :type              => resource[:type],
-      :isDefault         => resource[:is_default],
-      :access            => resource['access'],
-      :url               => resource['url'],
-      :user              => resource['user'],
-      :password          => resource['password'],
-      :database          => resource['database'],
-      :basicAuth         => resource['basic_auth'],
-      :basicAuthPassword => resource['basic_auth_password'],
-      :basicAuthUser     => resource['basic_auth_user'],
-      :withCredentials   => resource['with_credentials'],
-      :jsonData          => resource['json_data']
-    }
-    request(:post, 'api/datasources', payload)
+    payload = create_payload(@resource.to_hash)
+    request(:post, api_root, payload)
     @property_hash[:ensure] = :present
   end
 
   def destroy
-    request(:delete, "api/datasources/#{@property_hash[:id]}")
+    request(:delete, "#{api_root}/#{@property_hash[:id]}")
     @property_hash.clear
   end
 
   def name=(*)
-    update(:name => resource[:name])
+    @needs_update = true
   end
 
   def type=(*)
-    update(:type => resource[:type])
+    @needs_update = true
   end
 
   def is_default=(*)
-    update(:isDefault => resource[:is_default])
+    @needs_update = true
   end
 
   def access=(*)
-    update(:access => resource[:access])
+    @needs_update = true
   end
 
   def url=(*)
-    update(:url => resource[:url])
+    @needs_update = true
   end
 
   def user=(*)
-    update(:user => resource[:user])
+    @needs_update = true
   end
 
   def password=(*)
-    update(:password => resource[:password])
+    @needs_update = true
   end
 
   def database=(*)
-    update(:database => resource[:database])
+    @needs_update = true
   end
 
   def basic_auth=(*)
-    update(:basicAuth => resource[:basic_auth])
+    @needs_update = true
   end
 
   def basic_auth_password=(*)
-    update(:basicAuthPassword => resource[:basic_auth_password])
+    @needs_update = true
   end
 
   def basic_auth_user=(*)
-    update(:basicAuthUser => resource[:basic_auth_user])
+    @needs_update = true
   end
 
   def with_credentials=(*)
-    update(:withCredentials => resource[:with_credentials])
+    @needs_update = true
   end
 
   def json_data=(*)
-    update(:jsonData => resource[:json_data])
+    @needs_update = true
+  end
+
+  def flush
+    update if @needs_update
   end
 end

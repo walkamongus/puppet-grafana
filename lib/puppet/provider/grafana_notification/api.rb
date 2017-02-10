@@ -7,40 +7,20 @@ require 'openssl'
 Puppet::Type.type(:grafana_notification).provide(:api, :parent => Grafana::Api) do
   mk_resource_methods
 
-  def request(*args)
-    self.class.request(*args)
+  def initialize(value = {})
+    super(value)
+    @needs_update = false
   end
 
-  def camelize(*args)
-    self.class.camelize(*args)
-  end
-
-  def bool_to_sym(*args)
-    self.class.bool_to_sym(*args)
-  end
-
-  def update(new_value)
-    payload = Hash[@property_hash.map { |k, v| [camelize(k).to_sym, v] }]
-    payload.delete(:ensure)
-    payload.merge!(new_value)
-    request(:put, "api/alert-notifications/#{@property_hash[:id]}", payload)
+  def self.api_root
+    'api/alert-notifications'
   end
 
   def self.instances
-    response = request(:get, 'api/alert-notifications')
+    response = request(:get, api_root)
     ids      = JSON.parse(response.body).collect { |item| item['id'] }
-
     ids.collect do |id|
-      response = request(:get, "api/alert-notifications/#{id}")
-      data     = JSON.parse(response.body)
-      new(
-        :name       => data['name'],
-        :ensure     => :present,
-        :id         => data['id'],
-        :type       => data['type'],
-        :is_default => bool_to_sym(data['isDefault']),
-        :settings   => data['settings']
-      )
+      new get_properties(api_root, id)
     end
   end
 
@@ -52,39 +32,48 @@ Puppet::Type.type(:grafana_notification).provide(:api, :parent => Grafana::Api) 
     end
   end
 
+  def api_root
+    self.class.api_root
+  end
+
+  def update
+    updated_values = @property_hash.merge(@resource.to_hash)
+    payload = create_payload(updated_values)
+    request(:put, "#{api_root}/#{@property_hash[:id]}", payload)
+  end
+
   def exists?
     @property_hash[:ensure] == :present
   end
 
   def create
-    payload = {
-      :name      => resource[:name],
-      :type      => resource[:type],
-      :isDefault => resource[:is_default],
-      :settings  => resource[:settings]
-    }
-    request(:post, 'api/alert-notifications', payload)
+    payload = create_payload(@resource.to_hash)
+    request(:post, api_root, payload)
     @property_hash[:ensure] = :present
   end
 
   def destroy
-    request(:delete, "api/alert-notifications/#{@property_hash[:id]}")
+    request(:delete, "#{api_root}/#{@property_hash[:id]}")
     @property_hash.clear
   end
 
   def is_default=(*)
-    update(:isDefault => resource[:is_default])
+    @needs_update = true
   end
 
   def settings=(*)
-    update(:settings => resource[:settings])
+    @needs_update = true
   end
 
   def type=(*)
-    update(:type => resource[:type])
+    @needs_update = true
   end
 
   def name=(*)
-    update(:name => resource[:name])
+    @needs_update = true
+  end
+
+  def flush
+    update if @needs_update
   end
 end
