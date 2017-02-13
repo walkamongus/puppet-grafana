@@ -58,56 +58,24 @@ Puppet::Type.type(:grafana_datasource).provide(:api, :parent => Grafana::Api) do
     @property_hash.clear
   end
 
-  def name=(*)
-    @needs_update = true
-  end
-
-  def type=(*)
-    @needs_update = true
-  end
-
-  def is_default=(*)
-    @needs_update = true
-  end
-
-  def access=(*)
-    @needs_update = true
-  end
-
-  def url=(*)
-    @needs_update = true
-  end
-
-  def user=(*)
-    @needs_update = true
-  end
-
-  def password=(*)
-    @needs_update = true
-  end
-
-  def database=(*)
-    @needs_update = true
-  end
-
-  def basic_auth=(*)
-    @needs_update = true
-  end
-
-  def basic_auth_password=(*)
-    @needs_update = true
-  end
-
-  def basic_auth_user=(*)
-    @needs_update = true
-  end
-
-  def with_credentials=(*)
-    @needs_update = true
-  end
-
-  def json_data=(*)
-    @needs_update = true
+  [
+    :name,
+    :type,
+    :is_default,
+    :access,
+    :url,
+    :user,
+    :password,
+    :database,
+    :basic_auth,
+    :basic_auth_user,
+    :basic_auth_password,
+    :with_credentials,
+    :json_data
+  ].each do |prop|
+    define_method(prop.to_s + '=') do |*|
+      @needs_update = true
+    end
   end
 
   def flush
