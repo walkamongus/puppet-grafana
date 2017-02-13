@@ -57,20 +57,15 @@ Puppet::Type.type(:grafana_notification).provide(:api, :parent => Grafana::Api) 
     @property_hash.clear
   end
 
-  def is_default=(*)
-    @needs_update = true
-  end
-
-  def settings=(*)
-    @needs_update = true
-  end
-
-  def type=(*)
-    @needs_update = true
-  end
-
-  def name=(*)
-    @needs_update = true
+  [
+    :name,
+    :type,
+    :is_default,
+    :settings
+  ].each do |prop|
+    define_method(prop.to_s + '=') do |*|
+      @needs_update = true
+    end
   end
 
   def flush
