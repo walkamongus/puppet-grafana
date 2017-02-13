@@ -1,3 +1,5 @@
+require 'puppet/property/boolean'
+
 Puppet::Type.newtype(:grafana_datasource) do
   @doc = 'Create a new Grafana datasource'
 
@@ -13,10 +15,9 @@ Puppet::Type.newtype(:grafana_datasource) do
     defaultto :graphite
   end
 
-  newproperty(:is_default, :boolean => true) do
+  newproperty(:is_default, :boolean => true, :parent => Puppet::Property::Boolean) do
     desc 'Whether to use the datasource as the default datasource'
-    newvalues(:true, :false)
-    defaultto :false
+    defaultto false
   end
 
   newproperty(:access) do
@@ -41,16 +42,14 @@ Puppet::Type.newtype(:grafana_datasource) do
     desc 'The datasource database name'
   end
 
-  newproperty(:with_credentials, :boolean => true) do
+  newproperty(:with_credentials, :boolean => true, :parent => Puppet::Property::Boolean) do
     desc 'Whether datasource access requires credentials'
-    newvalues(:true, :false)
-    defaultto :false
+    defaultto false
   end
 
-  newproperty(:basic_auth, :boolean => true) do
+  newproperty(:basic_auth, :boolean => true, :parent => Puppet::Property::Boolean) do
     desc 'Whether to use basic auth for accessing the datasource'
-    newvalues(:true, :false)
-    defaultto(:false)
+    defaultto(false)
   end
 
   newproperty(:basic_auth_user) do

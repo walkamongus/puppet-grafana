@@ -1,3 +1,5 @@
+require 'puppet/property/boolean'
+
 Puppet::Type.newtype(:grafana_notification) do
   @doc = 'Create a new Grafana alert notification'
 
@@ -13,10 +15,9 @@ Puppet::Type.newtype(:grafana_notification) do
     defaultto :email
   end
 
-  newproperty(:is_default, :boolean => true) do
+  newproperty(:is_default, :boolean => true, :parent => Puppet::Property::Boolean) do
     desc 'Whether to use the notification as the default notification'
-    newvalues(:true, :false)
-    defaultto :false
+    defaultto false
   end
 
   newproperty(:settings) do

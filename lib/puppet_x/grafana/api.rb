@@ -15,24 +15,6 @@ module Grafana
       end
     end
 
-    def self.to_bool(value)
-      case value
-      when 'true', :true then true
-      when 'false', :false then false
-      else
-        value
-      end
-    end
-
-    def self.bool_to_sym(value)
-      case value
-      when true then :true
-      when false then :false
-      else
-        value
-      end
-    end
-
     def self.underscore(term)
       term.gsub(/::/, '/').sub(/([A-Z]+)([A-Z][a-z])/, '\1_\2')
           .gsub(/([a-z\d])([A-Z])/, '\1_\2')
@@ -45,7 +27,7 @@ module Grafana
       response = request(:get, "#{api_root}/#{id}")
       data     = JSON.parse(response.body)
       data.each do |k, v|
-        properties[underscore(k).to_sym] = bool_to_sym(v)
+        properties[underscore(k).to_sym] = v
       end
       properties[:ensure] = :present
       properties
@@ -92,7 +74,7 @@ module Grafana
     end
 
     def create_payload(hash)
-      payload = Hash[hash.map { |k, v| [camelize(k).to_sym, self.class.to_bool(v)] }]
+      payload = Hash[hash.map { |k, v| [camelize(k).to_sym, v] }]
       [:ensure, :provider, :secureJsonFields, :created, :updated].each { |k| payload.delete(k) }
       payload
     end
