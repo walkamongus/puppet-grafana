@@ -63,7 +63,7 @@ module Grafana
 
       begin
         uri = URI.parse("#{config[:grafana_base_url]}/#{path}")
-        response = Net::HTTP.start(uri.host, uri.port) do |http|
+        response = Net::HTTP.start(uri.host, uri.port, use_ssl: uri.scheme == 'https', verify_mode: OpenSSL::SSL::VERIFY_NONE) do |http|
           request = verb_map[method.to_sym].new(uri.request_uri)
           request.add_field('Content-Type', 'application/json')
           request.basic_auth config[:api_user], config[:api_password]
