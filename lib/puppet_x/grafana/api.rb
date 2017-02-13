@@ -93,7 +93,7 @@ module Grafana
 
     def create_payload(hash)
       payload = Hash[hash.map { |k, v| [camelize(k).to_sym, self.class.to_bool(v)] }]
-      [:ensure, :provider, :secureJsonFields].each { |k| payload.delete(k) }
+      [:ensure, :provider, :secureJsonFields, :created, :updated].each { |k| payload.delete(k) }
       payload
     end
 
