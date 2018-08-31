@@ -19,6 +19,7 @@ class grafana (
   String            $package_name       = $::grafana::params::package_name,
   String            $package_ensure     = $::grafana::params::package_ensure,
   String            $plugins_dir        = $::grafana::params::plugins_dir,
+  String            $pid_file_dir       = $::grafana::params::pid_file_dir,
   Boolean           $restart_on_upgrade = $::grafana::params::restart_on_upgrade,
   String            $service_name       = $::grafana::params::service_name,
   Optional[String]  $url                = $::grafana::params::url,
@@ -31,9 +32,10 @@ class grafana (
   validate_absolute_path($grafana_home)
   validate_absolute_path($log_dir)
   validate_absolute_path($plugins_dir)
+  validate_absolute_path($pid_file_dir)
 
-  class { '::grafana::install': }->
-  class { '::grafana::config': }~>
-  class { '::grafana::service': }
+  class { '::grafana::install': }
+  -> class { '::grafana::config': }
+  ~> class { '::grafana::service': }
 
 }

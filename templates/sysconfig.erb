@@ -9,6 +9,7 @@ CONF_DIR=<%= @conf_dir %>
 CONF_FILE=<%= @conf_file %>
 RESTART_ON_UPGRADE=<%= @restart_on_upgrade ? 'true' : 'false' %>
 PLUGINS_DIR=<%= @plugins_dir %>
+PID_FILE_DIR=<%= @pid_file_dir %>
 <% if @proxy -%>
 export http_proxy=<%= @proxy %>
 export https_proxy=<%= @proxy %>

@@ -18,6 +18,7 @@ class grafana::params {
       $max_open_files     = 10000
       $package_name       = 'grafana'
       $plugins_dir        = "${data_dir}/plugins"
+      $pid_file_dir       = '/var/run/grafana'
       $restart_on_upgrade = false
       $service_name       = 'grafana-server'
       $url                = 'https://grafana.net'

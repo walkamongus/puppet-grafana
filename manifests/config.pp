@@ -9,6 +9,7 @@ class grafana::config {
   $log_dir            = $::grafana::log_dir
   $max_open_files     = $::grafana::max_open_files
   $plugins_dir        = $::grafana::plugins_dir
+  $pid_file_dir       = $::grafana::pid_file_dir
   $restart_on_upgrade = $::grafana::restart_on_upgrade
   $user               = $::grafana::user
   $proxy              = $::grafana::proxy
